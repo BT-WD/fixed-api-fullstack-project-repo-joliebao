@@ -1,11 +1,32 @@
 <!doctype html>
 <html lang="en">
+
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>API Full Stack Project</title>
   </head>
+
   <body>
-    <!-- You code goes here-->
+    <h3>
+      MTA Map Tracker
+    </h3>
+
+    <form action="/search" method="GET">
+      <input type="text" name="q" placeholder="Current Location" />
+      <button type="submit">Search</button>
+    </form>
+
+    <form action="/search" method="GET">
+      <input type="text" name="q" placeholder="Destination" />
+      <button type="submit">Search</button>
+    </form>
+
+    <section>
+      <p>
+        Destination
+      </p>
+    </section>
   </body>
+
 </html>
