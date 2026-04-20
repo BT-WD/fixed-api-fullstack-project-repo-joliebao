@@ -1,30 +1,37 @@
 <!doctype html>
 <html lang="en">
 
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>API Full Stack Project</title>
-  </head>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>API Full Stack Project</title>
+  <link rel="stylesheet" href="index.css">
+</head>
 
   <body>
     <h3>
       MTA Map Tracker
     </h3>
 
-    <form action="/search" method="GET">
-      <input type="text" name="q" placeholder="Current Location" />
+    <form action="/search" method="GET" id="searchBar">
+      <input type="text" name="current" placeholder="Current Location" />
+      <input type="text" name="destination" placeholder="Destination" />
       <button type="submit">Search</button>
     </form>
 
-    <form action="/search" method="GET">
-      <input type="text" name="q" placeholder="Destination" />
-      <button type="submit">Search</button>
-    </form>
-
-    <section>
+    <section class="route">
       <p>
-        Destination
+        Travel method 1
+      </p>
+    </section>
+    <section class="route">
+      <p>
+        Travel method 2
+      </p>
+    </section>
+    <section class="route">
+      <p>
+        Travel method 3
       </p>
     </section>
   </body>
