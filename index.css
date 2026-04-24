@@ -1,27 +1,64 @@
 body {
-  margin-left: 25px;
+  margin: 0 auto;
+  width:50%;
+  padding: 20px;
 }
+
+h1 {
+  text-align: center;
+}
+
+#UIBar {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+#UIBar .tab {
+  padding: 10px 20px;
+  border-radius: 999px;
+  border: none;
+  background-color: #e0d4f0;
+  color: #7221a1;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+#UIBar .tab.active {
+  background-color: #7221a1;
+  color: white;
+}
+
+#UIBar .tab:hover {
+  background-color: #c7b2e6;
+}
+
+.panel {
+  padding: 10px 0;
+}
+
+/* Transit view */
 
 #searchBar {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
 #searchBar input {
   display: block;
-  width: 25%;
-  height: 32px;
+  height: 40px;
   border-radius: 999px;
   border: none;
-  padding: 3px 15px;
+  padding: 3px 20px;
   outline: none;
   background-color: #f0ebf3;
 }
 
 #searchBar input:focus {
-  border-color: #007BFF;
-  box-shadow: 0 0 0 2px rgba(0,123,255,0.2);
+  border-color: #502250;
+  box-shadow: 0 0 0 2px rgba(74, 43, 95, 0.2);
 }
 
 #searchBar button {
@@ -29,12 +66,12 @@ body {
   width: 80px;
   padding: 10px;
   border: none;
-  background-color: #007BFF;
+  background-color: #7221a1;
   color: white;
 }
 
 #searchBar button:hover {
-  background-color: #005FCC;
+  background-color: #3f0a5e;
   cursor: pointer;
 }
 
@@ -47,5 +84,48 @@ body {
   border-radius: 12px;
   padding: 15px;
   margin-top: 20px;
+  background-color: #f9f9f9;
+}
+
+/* Status view */
+#searchBar2 {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+}
+
+#searchBar2 input {
+  display: block;
+  height: 40px;
+  border-radius: 999px;
+  border: none;
+  padding: 3px 20px;
+  outline: none;
+  background-color: #f0ebf3;
+  flex: 1;
+}
+
+#searchBar2 input:focus {
+  border-color: #502250;
+  box-shadow: 0 0 0 2px rgba(74, 43, 95, 0.2);
+}
+
+#searchBar2 button {
+  border-radius: 999px;
+  padding: 10px;
+  border: none;
+  background-color: #7221a1;
+  color: white;
+}
+
+#searchBar2 button:hover {
+  background-color: #3f0a5e;
+  cursor: pointer;
+}
+
+#results{
+  border-radius: 12px;
+  padding: 15px;
+  margin-top: 40px;
   background-color: #f9f9f9;
 }

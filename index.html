@@ -9,31 +9,38 @@
 </head>
 
   <body>
-    <h3>
+    <h1>
       MTA Map Tracker
-    </h3>
+    </h1>
 
+    <section id="UIBar">
+      <button class="tab active" data-tab="transit" onclick="switchTabs('transit')">Transit</button>
+      <button class="tab" data-tab="status" onclick="switchTabs('status')">Status</button>
+    </section>
+
+    <div id="tabContent">
+    <div class="panel" id="transit" style="display: block;">
+      
+    <!-- Transit content -->
     <form action="/search" method="GET" id="searchBar">
       <input type="text" name="current" placeholder="Current Location" />
       <input type="text" name="destination" placeholder="Destination" />
       <button type="submit">Search</button>
     </form>
 
-    <section class="route">
-      <p>
-        Travel method 1
-      </p>
-    </section>
-    <section class="route">
-      <p>
-        Travel method 2
-      </p>
-    </section>
-    <section class="route">
-      <p>
-        Travel method 3
-      </p>
-    </section>
-  </body>
+    <section class="route"><p>Travel method 1</p></section>
+    <section class="route"><p>Travel method 2</p></section>
+    <section class="route"><p>Travel method 3</p></section>
+  </div>
 
+  <div class="panel" id="status" style="display: none;">
+    <!-- Status content -->
+      <form action="/search" method="GET" id="searchBar2">
+        <input type="text" name="current" placeholder="Train line" />
+        <button type="submit">Search</button>
+      </form>
+      <p id="results">Travel method 1</p>
+  </div>
+  <script src="index.js"></script>
+  </body>
 </html>
