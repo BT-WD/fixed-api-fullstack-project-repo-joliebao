@@ -21,6 +21,8 @@ const MTA_LINE_COLORS = {
   'S': '#808183'
 };
 
+const ORS_API_KEY = 'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6ImQwZDIzMDU2ZjU2OTRlMWZhOThiNDk1MGYyODFlNmU5IiwiaCI6Im11cm11cjY0In0=';
+
 function getLineColor(line) {
   const normalized = line.trim().toUpperCase();
   return MTA_LINE_COLORS[normalized] || '#7221a1'; // Default purple
@@ -81,27 +83,6 @@ async function getStatusForLine(line) {
   } catch (err) {
     console.error("Server error:", err);
   }
-  // try {
-  //   // Ensure the client calls the Node server running on port 3000
-  //   const host = window.location.hostname || 'localhost';
-  //   const url = `${window.location.protocol}//${host}:3000/status/${encodeURIComponent(line)}`;
-
-  //   const res = await fetch(url);
-  //   if (!res.ok) {
-  //     // log status and any server message to help debugging
-  //     const body = await res.text().catch(() => '');
-  //     console.error("Status fetch failed", res.status, body);
-  //     return null;
-  //   }
-
-  //   const data = await res.json();
-  //   if (!Array.isArray(data) || data.length === 0) return [];
-
-  //   return data; // array of user-friendly strings
-  // } catch (err) {
-  //   console.error("Fetch error:", err);
-  //   return null;
-  // }
 }
 
 function escapeHtml(str) {
@@ -110,12 +91,160 @@ function escapeHtml(str) {
   return p.innerHTML;
 }
 
+function stripHtml(html) {
+  const div = document.createElement('div');
+  div.innerHTML = html || '';
+  return div.textContent || div.innerText || '';
+}
+
+async function geocodeLocation(query) {
+  const url = new URL('https://api.openrouteservice.org/geocode/search');
+  url.searchParams.set('api_key', ORS_API_KEY);
+  url.searchParams.set('text', query);
+  url.searchParams.set('size', '1');
+
+  console.log('Geocoding:', query);
+  
+  const response = await fetch(url);
+  if (!response.ok) {
+    const body = await response.text().catch(() => '');
+    throw new Error(`Geocoding failed (${response.status}) ${body}`);
+  }
+
+  const data = await response.json();
+  console.log('Geocode response:', data);
+  
+  const feature = data.features?.[0];
+  if (!feature || !feature.geometry?.coordinates) {
+    throw new Error(`Location not found: ${query}`);
+  }
+
+  const coords = feature.geometry.coordinates;
+  console.log('Geocoded coordinates:', coords);
+  
+  return coords;
+}
+
+async function getTransitRoute(origin, destination) {
+  const originCoords = await geocodeLocation(origin);
+  const destinationCoords = await geocodeLocation(destination);
+
+  console.log('Origin coords:', originCoords);
+  console.log('Destination coords:', destinationCoords);
+
+  // ORS expects [lon, lat] format - geocodeLocation returns [lon, lat]
+  const coordinates = [originCoords, destinationCoords];
+
+  const response = await fetch('https://api.openrouteservice.org/v2/directions/driving-car', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': ORS_API_KEY,
+    },
+    body: JSON.stringify({
+      coordinates: coordinates,
+      instructions: true,
+      geometry: false,
+    }),
+  });
+
+  const responseText = await response.text();
+  console.log('ORS Directions response status:', response.status);
+  console.log('ORS Directions response:', responseText);
+
+  if (!response.ok) {
+    throw new Error(`Directions failed (${response.status}) ${responseText}`);
+  }
+
+  const data = JSON.parse(responseText);
+  console.log('Parsed data:', data);
+  console.log('Parsed data routes:', data.routes);
+  
+  if (!data.routes?.length) {
+    // Log more details about the response
+    console.log('Full ORS response:', data);
+    // Check for ORS error in response
+    const errorMsg = data.error || data.error_message || data.message || JSON.stringify(data);
+    throw new Error(`No route found - ORS response: ${errorMsg}`);
+  }
+
+  // ORS v2 returns routes[].segments[].steps[]
+  const route = data.routes[0];
+  return {
+    properties: {
+      summary: route.summary,
+      segments: route.segments
+    }
+  };
+}
+
+function formatDistance(meters) {
+  if (meters >= 1000) {
+    return `${(meters / 1000).toFixed(1)} km`;
+  }
+  return `${Math.round(meters)} m`;
+}
+
+function formatDuration(seconds) {
+  const mins = Math.round(seconds / 60);
+  if (mins < 60) return `${mins} min`;
+  const hours = Math.floor(mins / 60);
+  const remainder = mins % 60;
+  return `${hours}h ${remainder}m`;
+}
+
+function renderTransitRoute(route, origin, destination) {
+  const routeResults = document.getElementById('routeResults');
+  if (!routeResults) return;
+
+  const summary = route.properties?.summary || {};
+  const steps = route.properties?.segments?.[0]?.steps || [];
+  const stepsHtml = steps.map(step => {
+    const instruction = escapeHtml(step.instruction || '');
+    const distance = formatDistance(step.distance || 0);
+    const duration = formatDuration(step.duration || 0);
+    return `<li>${instruction} <span class="step-distance">${distance}</span> <span class="step-duration">${duration}</span></li>`;
+  }).join('');
+
+  routeResults.innerHTML = `
+    <strong>Route from ${escapeHtml(origin)} to ${escapeHtml(destination)}</strong>
+    <p>${formatDuration(summary.duration || 0)} · ${formatDistance(summary.distance || 0)}</p>
+    <ol>${stepsHtml}</ol>
+  `;
+}
+
 // --- STATUS TAB FUNCTIONALITY ---
 document.addEventListener("DOMContentLoaded", () => {
-  // Attach status form listener
-  const searchForm = document.getElementById("searchBar2");
+  // Attach transit form listener
+  const transitForm = document.getElementById('searchBar');
+  const routeResults = document.getElementById('routeResults');
+  const statusSearchForm = document.getElementById("searchBar2");
   const resultsBox = document.getElementById("results");
 
+  if (transitForm && routeResults) {
+    transitForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const origin = e.target.elements.current.value.trim();
+      const destination = e.target.elements.destination.value.trim();
+      if (!origin || !destination) {
+        routeResults.innerHTML = '<p>Please enter both origin and destination.</p>';
+        return;
+      }
+
+      routeResults.innerHTML = '<p>Loading route...</p>';
+      try {
+        const route = await getTransitRoute(origin, destination);
+        renderTransitRoute(route, origin, destination);
+      } catch (err) {
+        console.error(err);
+        routeResults.innerHTML = `<p>Error loading route: ${escapeHtml(err.message)}</p>`;
+      }
+    });
+  }
+
+  // Attach status form listener
+  const searchForm = statusSearchForm;
   if (!searchForm || !resultsBox) return;
 
   searchForm.addEventListener("submit", async (e) => {
