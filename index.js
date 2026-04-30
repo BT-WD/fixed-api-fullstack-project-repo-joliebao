@@ -1,5 +1,4 @@
-// import dotenv from "dotenv";
-// dotenv.config();
+
 
 function switchTabs(tabName) {
   const tabs = document.querySelectorAll("#UIBar .tab");
@@ -53,27 +52,14 @@ async function getStatusForLine(line) {
 }
 
 // --- STATUS TAB FUNCTIONALITY ---
-
 document.addEventListener("DOMContentLoaded", () => {
-    switchTabs();
+  // Attach status form listener
+  const searchForm = document.getElementById("searchBar2");
+  const resultsBox = document.getElementById("results");
 
-    // Ensure one tab/panel is visible on load (activate first tab if none active)
-    const activeTab = document.querySelector("#UIBar .tab.active") || document.querySelector("#UIBar .tab");
-    if (activeTab) activeTab.click();
+  if (!searchForm || !resultsBox) return;
 
-    // Attach status form listener now that DOM exists
-    const searchForm = document.getElementById("searchBar2");
-    const resultsBox = document.getElementById("results");
-
-    if (!searchForm) {
-      console.warn("searchBar2 not found; status form listener not attached.");
-      return;
-    }
-    if (!resultsBox) {
-      console.warn("results element not found; status results will not be shown.");
-    }
-
-    searchForm.addEventListener("submit", async (e) => {
+  searchForm.addEventListener("submit", async (e) => {
     e.preventDefault();
 
     const line = e.target.current.value.trim();
@@ -96,13 +82,4 @@ document.addEventListener("DOMContentLoaded", () => {
       <span>${alert.description}</span>
     `;
   });
-});
-
-// Wait for DOM to be ready before wiring UI behavior
-document.addEventListener("DOMContentLoaded", () => {
-    switchTabs();
-
-    // Ensure one tab/panel is visible on load (activate first tab if none active)
-    const activeTab = document.querySelector("#UIBar .tab.active") || document.querySelector("#UIBar .tab");
-    if (activeTab) activeTab.click();
 });
