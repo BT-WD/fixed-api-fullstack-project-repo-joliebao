@@ -42,21 +42,15 @@ function getFeedUrlForLine(line) {
 }
 
 async function getStatusForLine(line) {
-  const res = await fetch("https://api.mta.info/serviceStatus");
+  const res = await fetch(`/status/${line}`);
   const data = await res.json();
 
-  const subwayLines = data.subway.line;
+  if (!Array.isArray(data) || data.length === 0) {
+    return null;
+  }
 
-  const match = subwayLines.find(l => l.name.toUpperCase() === line.toUpperCase());
-
-  if (!match) return null;
-
-  return {
-    title: `${match.name} Line Status: ${match.status}`,
-    description: match.text || "No additional information."
-  };
+  return data[0]; // first alert
 }
-
 
 // --- STATUS TAB FUNCTIONALITY ---
 
@@ -79,7 +73,7 @@ document.addEventListener("DOMContentLoaded", () => {
       console.warn("results element not found; status results will not be shown.");
     }
 
-  searchForm.addEventListener("submit", async (e) => {
+    searchForm.addEventListener("submit", async (e) => {
     e.preventDefault();
 
     const line = e.target.current.value.trim();
