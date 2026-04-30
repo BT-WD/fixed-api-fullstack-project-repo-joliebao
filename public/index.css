@@ -1,6 +1,6 @@
 body {
   margin: 0 auto;
-  width:50%;
+  width: 50%;
   padding: 20px;
 }
 
@@ -123,9 +123,38 @@ h1 {
   cursor: pointer;
 }
 
-#results{
+
+/* Train Icon Styles */
+.train-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 30px;
+}
+
+.train-icon.hidden {
+  display: none;
+}
+
+.train-badge {
+  width: 75px;
+  height: 75px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 50px;
+  font-family: Helvetica, Arial, sans-serif;
+  color: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  flex-shrink: 0;
+}
+
+#results {
   border-radius: 12px;
   padding: 15px;
-  margin-top: 40px;
+  margin-top: 30px;
   background-color: #f9f9f9;
 }

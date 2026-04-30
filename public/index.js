@@ -1,3 +1,31 @@
+// MTA Subway Line Colors
+const MTA_LINE_COLORS = {
+  // Red lines
+  '1': '#EE352E', '2': '#EE352E', '3': '#EE352E',
+  // Green lines
+  '4': '#009952', '5': '#00933C', '6': '#00933C',
+  // Purple line
+  '7': '#B933AD',
+  // Blue lines
+  'A': '#0039A6', 'C': '#0039A6', 'E': '#0039A6',
+  // Orange lines
+  'B': '#FF6319', 'D': '#FF6319', 'F': '#FF6319', 'M': '#FF6319',
+  // Light Green line
+  'G': '#799534',
+  // Yellow/Cream lines
+  'N': '#FCCC0A', 'Q': '#FCCC0A', 'R': '#FCCC0A', 'W': '#FCCC0A',
+  // Brown lines
+  'J': '#996633', 'Z': '#996633',
+  // Gray lines
+  'L': '#7C858C',
+  'S': '#808183'
+};
+
+function getLineColor(line) {
+  const normalized = line.trim().toUpperCase();
+  return MTA_LINE_COLORS[normalized] || '#7221a1'; // Default purple
+}
+
 function switchTabs(tabName) {
   const tabs = document.querySelectorAll("#UIBar .tab");
   const panels = document.querySelectorAll(".panel");
@@ -96,8 +124,28 @@ document.addEventListener("DOMContentLoaded", () => {
     const line = e.target.elements.current.value.trim();
     if (!line) {
       resultsBox.textContent = "Please enter a train line.";
+      document.getElementById("trainIcon").classList.add("hidden");
       return;
     }
+
+    // Update train icon
+    const trainIcon = document.getElementById("trainIcon");
+    const trainBadge = trainIcon.querySelector(".train-badge");
+    const color = getLineColor(line);
+    const displayLine = line.toUpperCase();
+
+    trainBadge.style.backgroundColor = color;
+    trainBadge.textContent = displayLine;
+    
+    // Set text color to black for yellow/cream lines (N, Q, R, W)
+    const yellowLines = ['N', 'Q', 'R', 'W'];
+    if (yellowLines.includes(displayLine)) {
+      trainBadge.style.color = 'black';
+    } else {
+      trainBadge.style.color = 'white';
+    }
+    
+    trainIcon.classList.remove("hidden");
 
     resultsBox.textContent = "Loading…";
 
